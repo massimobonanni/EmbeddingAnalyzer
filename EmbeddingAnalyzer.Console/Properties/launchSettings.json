@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "Calculate-Distance": {
+      "commandName": "Project",
+      "commandLineArgs": "calculate-distance -e https://ai050demoresource.openai.azure.com/ -k 5c7a9e03b787477c9e0bc160f00b4702 -m myEmbedding -t1 \"dog\" -t2 \"cat\""
+    },
+    "RAG": {
+      "commandName": "Project",
+      "commandLineArgs": "rag -e  -k  -m  -t \"tell me about badges\" -t \"I want to delete my profile\" -f \"C:\\Sviluppo\\EmbeddingAnalyzer\\EmbeddingAnalyzer.Console\\Samples\\MSLearning\\LearnFAQ-KB.txt\""
+    }
+  }
+}
