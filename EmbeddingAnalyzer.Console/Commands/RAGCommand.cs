@@ -55,7 +55,7 @@ namespace EmbeddingAnalyzer.Console.Commands
 
             var fileOption = new Option<string>(
                 name: "--file",
-                description: "The full path of the line feed file (.txt) contains all the text to use as knowledg base.")
+                description: "The full path of the line feed file (.txt) contains all the text to use as knowledge base.")
             {
                 IsRequired = true,
             };
