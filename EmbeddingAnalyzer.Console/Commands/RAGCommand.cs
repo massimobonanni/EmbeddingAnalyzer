@@ -28,7 +28,7 @@ namespace EmbeddingAnalyzer.Console.Commands
             modelNameOption.Aliases.Add("-m");
             this.Options.Add(modelNameOption);
 
-            var textOption = new Option<IEnumerable<string>>("--text") { Description = "The text used to seach in the data file.", Required = true, AllowMultipleArgumentsPerToken = true };
+            var textOption = new Option<IEnumerable<string>>("--text") { Description = "The text used to search in the data file.", Required = true, AllowMultipleArgumentsPerToken = true };
             textOption.Aliases.Add("-t");
             this.Options.Add(textOption);
 
