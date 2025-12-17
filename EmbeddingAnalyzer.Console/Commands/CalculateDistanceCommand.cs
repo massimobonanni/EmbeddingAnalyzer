@@ -14,78 +14,56 @@ namespace EmbeddingAnalyzer.Console.Commands
     {
         public CalculateDistanceCommand() : base("calculate-distance", "Calculate the distance between two texts.")
         {
-            var endpointOption = new Option<Uri>(
-                name: "--endpoint",
-                description: "The endpoint of Azure OpenAI resource.")
+            var endpointOption = new Option<Uri>("--endpoint") { Description = "The endpoint of Azure OpenAI resource.", Required = true };
+            endpointOption.Aliases.Add("-e");
+            this.Options.Add(endpointOption);
+
+            var apiKeyOption = new Option<string>("--api-key") { Description = "The API key of Azure OpenAI resource.", Required = true };
+            apiKeyOption.Aliases.Add("-k");
+            this.Options.Add(apiKeyOption);
+
+            var modelNameOption = new Option<string>("--model-name") { Description = "The model name of Azure OpenAI resource.", Required = true };
+            modelNameOption.Aliases.Add("-m");
+            this.Options.Add(modelNameOption);
+
+            var text1Option = new Option<string>("--text1") { Description = "The first text.", Required = true };
+            text1Option.Aliases.Add("-t1");
+            this.Options.Add(text1Option);
+
+            var text2Option = new Option<string>("--text2") { Description = "The second text.", Required = true };
+            text2Option.Aliases.Add("-t2");
+            this.Options.Add(text2Option);
+
+            this.SetAction(async context =>
             {
-                IsRequired = true,
-            };
-            endpointOption.AddAlias("-e");
-            this.AddOption(endpointOption);
+                var endpoint = context.GetValue(endpointOption)!;
+                var apiKey = context.GetValue(apiKeyOption)!;
+                var modelName = context.GetValue(modelNameOption)!;
+                var text1 = context.GetValue(text1Option)!;
+                var text2 = context.GetValue(text2Option)!;
 
-            var apiKeyOption = new Option<string>(
-                name: "--api-key",
-                description: "The API key of Azure OpenAI resource.")
-            {
-                IsRequired = true,
-            };
-            apiKeyOption.AddAlias("-k");
-            this.AddOption(apiKeyOption);
+                var embeddingService = new AzureOpenAIEmbeddingService(endpoint, apiKey, modelName);
 
-            var modelNameOption = new Option<string>(
-                name: "--model-name",
-                description: "The model name of Azure OpenAI resource.")
-            {
-                IsRequired = true,
-            };
-            modelNameOption.AddAlias("-m");
-            this.AddOption(modelNameOption);
+                System.Console.WriteLine($"Calculating distance between '{text1}' and '{text2}'...");
+                System.Console.WriteLine();
 
-            var text1Option = new Option<string>(
-                name: "--text1",
-                description: "The first text.")
-            {
-                IsRequired = true,
-            };
-            text1Option.AddAlias("-t1");
-            this.AddOption(text1Option);
+                System.Console.Write($"Embedding '{text1}'...");
+                var embedding1 = await embeddingService.GetEmbedding(text1);
+                System.Console.WriteLine($" Cost {embedding1.Usage.TotalTokens} tokens");
 
-            var text2Option = new Option<string>(
-                name: "--text2",
-                description: "The second text.")
-            {
-                IsRequired = true,
-            };
-            text2Option.AddAlias("-t2");
-            this.AddOption(text2Option);
+                System.Console.Write($"Embedding '{text2}'...");
+                var embedding2 = await embeddingService.GetEmbedding(text2);
+                System.Console.WriteLine($" Cost {embedding2.Usage.TotalTokens} tokens");
 
-            this.SetHandler(CommandHandler,
-                endpointOption,apiKeyOption,modelNameOption,text1Option,text2Option);
-        }
+                System.Console.WriteLine();
 
-        private async Task CommandHandler(Uri endpoint, string apiKey, string modelName, string text1, string text2)
-        {
-            var embeddingService = new AzureOpenAIEmbeddingService(endpoint,apiKey,modelName);
+                System.Console.WriteLine("Calculating distance...");
+                var distance = CosineSimilarityCalculator.CalculateDistance(embedding1, embedding2);
 
-            System.Console.WriteLine($"Calculating distance between '{text1}' and '{text2}'...");
-            System.Console.WriteLine();
+                System.Console.WriteLine($"Distance {distance}");
 
-            System.Console.Write($"Embedding '{text1}'...");
-            var embedding1 = await embeddingService.GetEmbedding(text1);
-            System.Console.WriteLine($" Cost {embedding1.Usage.TotalTokens} tokens");
-
-            System.Console.Write($"Embedding '{text2}'...");
-            var embedding2 = await embeddingService.GetEmbedding(text2);
-            System.Console.WriteLine($" Cost {embedding2.Usage.TotalTokens} tokens");
-            
-            System.Console.WriteLine();
-            
-            System.Console.WriteLine("Calculating distance...");
-            var distance = CosineSimilarityCalculator.CalculateDistance(embedding1, embedding2);
-
-            System.Console.WriteLine($"Distance {distance}");
-
-            System.Console.WriteLine();
+                System.Console.WriteLine();
+            });
         }
     }
 }

@@ -16,63 +16,40 @@ namespace EmbeddingAnalyzer.Console.Commands
     {
         public RAGCommand() : base("rag", "Given one or more texts and a text file with several texts, return the top sentences order by distance for each text in input.")
         {
-            var endpointOption = new Option<Uri>(
-                name: "--endpoint",
-                description: "The endpoint of Azure OpenAI resource.")
-            {
-                IsRequired = true,
-            };
-            endpointOption.AddAlias("-e");
-            this.AddOption(endpointOption);
+            var endpointOption = new Option<Uri>("--endpoint") { Description = "The endpoint of Azure OpenAI resource.", Required = true };
+            endpointOption.Aliases.Add("-e");
+            this.Options.Add(endpointOption);
 
-            var apiKeyOption = new Option<string>(
-                name: "--api-key",
-                description: "The API key of Azure OpenAI resource.")
-            {
-                IsRequired = true,
-            };
-            apiKeyOption.AddAlias("-k");
-            this.AddOption(apiKeyOption);
+            var apiKeyOption = new Option<string>("--api-key") { Description = "The API key of Azure OpenAI resource.", Required = true };
+            apiKeyOption.Aliases.Add("-k");
+            this.Options.Add(apiKeyOption);
 
-            var modelNameOption = new Option<string>(
-                name: "--model-name",
-                description: "The model name of Azure OpenAI resource.")
-            {
-                IsRequired = true,
-            };
-            modelNameOption.AddAlias("-m");
-            this.AddOption(modelNameOption);
+            var modelNameOption = new Option<string>("--model-name") { Description = "The model name of Azure OpenAI resource.", Required = true };
+            modelNameOption.Aliases.Add("-m");
+            this.Options.Add(modelNameOption);
 
-            var textOption = new Option<IEnumerable<string>>(
-                name: "--text",
-                description: "The text used to seach in the data file.")
-            {
-                IsRequired = true,
-            };
-            textOption.AddAlias("-t");
-            textOption.AllowMultipleArgumentsPerToken = true;
-            this.AddOption(textOption);
+            var textOption = new Option<IEnumerable<string>>("--text") { Description = "The text used to search in the data file.", Required = true, AllowMultipleArgumentsPerToken = true };
+            textOption.Aliases.Add("-t");
+            this.Options.Add(textOption);
 
-            var fileOption = new Option<string>(
-                name: "--file",
-                description: "The full path of the line feed file (.txt) contains all the text to use as knowledge base.")
-            {
-                IsRequired = true,
-            };
-            fileOption.AddAlias("-f");
-            this.AddOption(fileOption);
+            var fileOption = new Option<string>("--file") { Description = "The full path of the line feed file (.txt) contains all the text to use as knowledge base.", Required = true };
+            fileOption.Aliases.Add("-f");
+            this.Options.Add(fileOption);
 
-            var topOption = new Option<int>(
-                name: "--top",
-                description: "The number of result to retrieve. Default is 5.")
-            {
-                IsRequired = false,
-            };
-            topOption.SetDefaultValue(5);
-            this.AddOption(topOption);
+            var topOption = new Option<int>("--top") { Description = "The number of result to retrieve. Default is 5.", DefaultValueFactory = _ => 5 };
+            this.Options.Add(topOption);
 
-            this.SetHandler(CommandHandler,
-                endpointOption, apiKeyOption, modelNameOption, textOption, fileOption, topOption);
+            this.SetAction(async context =>
+            {
+                var endpoint = context.GetValue(endpointOption)!;
+                var apiKey = context.GetValue(apiKeyOption)!;
+                var modelName = context.GetValue(modelNameOption)!;
+                var inputTexts = context.GetValue(textOption)!;
+                var filepath = context.GetValue(fileOption)!;
+                var top = context.GetValue(topOption);
+
+                await CommandHandler(endpoint, apiKey, modelName, inputTexts, filepath, top);
+            });
         }
 
         private async Task CommandHandler(Uri endpoint, string apiKey, string modelName, IEnumerable<string> inputTexts, string filepath, int top)
