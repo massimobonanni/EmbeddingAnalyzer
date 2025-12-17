@@ -13,10 +13,10 @@ namespace EmbeddingAnalyzer.Console
         {
             var rootCommand = new RootCommand("Console for demo on Embedding Models");
 
-            rootCommand.AddCommand(new CalculateDistanceCommand());
-            rootCommand.AddCommand(new RAGCommand());
+            rootCommand.Subcommands.Add(new CalculateDistanceCommand());
+            rootCommand.Subcommands.Add(new RAGCommand());
 
-            return await rootCommand.InvokeAsync(args);
+            return await rootCommand.Parse(args).InvokeAsync();
         }
     }
 }
